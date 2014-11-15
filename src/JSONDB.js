@@ -26,10 +26,13 @@ JSONDB.newTable = function (table)
  */
 JSONDB.newTables = function (tables)
 {
-    for (table in tables)
+    if (JSONDB.data[table] === undefined)
     {
-        JSONDB.data[tables[table]] = {};
-        JSONDB.tableIndex[tables[table]] = 0;
+        for (table in tables)
+        {
+            JSONDB.data[tables[table]] = {};
+            JSONDB.tableIndex[tables[table]] = 0;
+        }
     }
 }
 
@@ -40,7 +43,27 @@ JSONDB.newTables = function (tables)
  */
 JSONDB.createSchema = function (table, schema)
 {
-    JSONDB.tableSchema[table] = schema;
+    if (JSONDB.tableSchema[table] === undefined)
+    {
+        JSONDB.tableSchema[table] = schema;
+    }
+    else
+    {
+        console.error ("There is already a schema for table : '" + table + "''");
+    }
+};
+
+/*
+ * Function : creates schemas for tables
+ * @param table - array : all the tables that need a schema
+ * @param schema - array : schemas for the tables
+ */
+JSONDB.createSchemas = function (tables, schemas)
+{
+    for (table in tables)
+    {
+        JSONDB.createSchema(tables[table], schemas[table]);
+    }
 };
 
 /*
@@ -68,9 +91,9 @@ JSONDB.inserts = function (table, values)
 }
 
 /*
- * Function : adds value to table
- * @param table - string : table name
- * @param value - object : key value pair in table structure
+ * Function : creates schema for table
+ * @param table - string : table name for the schema
+ * @param value - object : schema structure
  * NOTE : this will only allow for accepted values, if values are added
  *        but the keys do not exist in the schema then the values will
  *        removed from the insert
@@ -95,4 +118,44 @@ JSONDB.insertWithSchema = function (table, value)
     JSONDB.data[table][tableIndex] = tableObject;
     JSONDB.tableIndex[table]++;
 
+};
+
+/*
+ * Function : creates schemas for tables
+ * @param table - array : array of table names to add schemas to
+ * @param value - object array : array of schemas to add to table
+ */
+JSONDB.insertsWithSchema = function (tables, values)
+{
+    for (table in tables)
+    {
+        JSONDB.insertWithSchema(tables[table], values[table]);
+    }
+};
+
+/*
+ * Function : updates table name
+ * @param table - string : name of the new table
+ */
+JSONDB.updateTable = function(table, update)
+{
+    var db = JSONDB.data;
+    var tableIndex = JSONDB.tableIndex;
+    var tableSchema = JSONDB.tableSchema;
+
+    if (JSONDB.data[table] !== undefined)
+    {
+        //update the table name
+        JSONDB.newTable(update);
+        db[update] = db[table];
+        delete db[table];
+
+        //update the tableIndex name
+        tableIndex[update] = tableIndex[table];
+        delete tableIndex[table];
+
+        //update the tableSchema name
+        tableSchema[update] = tableSchema[table];
+        delete tableSchema[table];
+    }
 };
