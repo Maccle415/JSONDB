@@ -43,9 +43,26 @@ JSONDB.newTables = function (tables)
  */
 JSONDB.createSchema = function (table, schema)
 {
+    var schemaArray = [];
+    var schemaOptions = [];
+
+    for (value in schema)
+    {
+        schemaArray.push(schema[value][0]);
+
+        schemaOptions = schema[value][1].split("|");
+
+        if (schema[value][1] !== "" || schema[value][1] instanceof Array)
+        {
+            JSONDB.createFieldOptions(table, schema[value]);
+        }
+    }
+
+    schema = schemaArray;
+
     if (JSONDB.tableSchema[table] === undefined)
     {
-        JSONDB.tableSchema[table] = schema;
+        JSONDB.tableSchema[table] = schemaArray;
     }
     else
     {
@@ -158,4 +175,36 @@ JSONDB.updateTable = function(table, update)
         tableSchema[update] = tableSchema[table];
         delete tableSchema[table];
     }
+};
+
+
+/*
+ * Function : stores the fields that are indexed per table
+ * @param table - string : table name
+ * @param schema - array : schema and the indexes
+ */
+JSONDB.createFieldOptions = function (table, schema)
+{
+    var schemaOptions = [];
+
+    if (schema[1] !== "")
+    {
+        schemaOptions = schema[1].split("|");
+    }
+
+    schema[1] = schemaOptions;
+
+    //make sure that this method only creates the object for the table once
+    if (JSONDB.indexedFields[table] === undefined)
+    {
+        JSONDB.indexedFields[table] = {};
+    }
+
+    JSONDB.indexedFields[table][schema[0]] = {};
+
+    for (s in schema[1])
+    {
+        JSONDB.indexedFields[table][schema[0]] = schema[1];
+    }
+
 };

@@ -17,8 +17,8 @@ JSONDB.newTable("testTable2");
 //Schema creation
 JSONDB.createSchema("users",
 [
-    "name",
-    "surname"
+    ["name", "index"],
+    ["surname", ""]
 ]);
 
 //createSchemas
@@ -29,12 +29,12 @@ JSONDB.createSchemas(
     ],
     [
         [
-            "Field 1",
-            "Field 2"
+            ["Field_1", "index"],
+            ["Field_2", "index"]
         ],
         [
-            "tField 1",
-            "tField 2"
+            ["tField_1", "index"],
+            ["tField_2", ""]
         ]
     ]
 );
@@ -80,3 +80,4 @@ JSONDB.updateTable("users", "update users");
 console.log(JSONDB.data);
 console.log(JSONDB.tableIndex);
 console.log(JSONDB.tableSchema);
+console.log(JSONDB.indexedFields);
