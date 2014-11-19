@@ -54,7 +54,7 @@ JSONDB.createSchema = function (table, schema)
 
         if (schema[value][1] !== "" || schema[value][1] instanceof Array)
         {
-            JSONDB.createFieldOptions(table, schema[value]);
+            JSONDB.createIndexedFieldList(table, schema[value]);
         }
     }
 
@@ -90,8 +90,12 @@ JSONDB.createSchemas = function (tables, schemas)
  */
 JSONDB.insert = function (table, value)
 {
-    JSONDB.data[table][JSONDB.tableIndex[table]] = value;
+    var tableIndex = JSONDB.tableIndex[table];
+
+    JSONDB.data[table][tableIndex] = value;
     JSONDB.tableIndex[table]++;
+
+    JSONDB.index(table, value, tableIndex);
 };
 
 /*
@@ -134,6 +138,8 @@ JSONDB.insertWithSchema = function (table, value)
 
     JSONDB.data[table][tableIndex] = tableObject;
     JSONDB.tableIndex[table]++;
+
+    JSONDB.index(table, tableObject, tableIndex);
 
 };
 
@@ -183,7 +189,7 @@ JSONDB.updateTable = function(table, update)
  * @param table - string : table name
  * @param schema - array : schema and the indexes
  */
-JSONDB.createFieldOptions = function (table, schema)
+JSONDB.createIndexedFieldList = function (table, schema)
 {
     var schemaOptions = [];
 
@@ -207,4 +213,40 @@ JSONDB.createFieldOptions = function (table, schema)
         JSONDB.indexedFields[table][schema[0]] = schema[1];
     }
 
+};
+
+/*
+ * Function : create index for table
+ * @param table - string : table name
+ * @param schema - array : schema and the indexes
+ */
+JSONDB.index = function (table, tableObject, tableIndex)
+{
+    var tableFields = JSONDB.indexedFields[table];
+
+    if (JSONDB.indexes[table] === undefined)
+    {
+        JSONDB.indexes[table] = {};
+    }
+
+    for (field in tableFields)
+    {
+        if (JSONDB.indexes[table][field] === undefined)
+        {
+            JSONDB.indexes[table][field] = {};
+        }
+    }
+
+    for (field in tableObject)
+    {
+        if (tableFields[field] !== undefined)
+        {
+            if (JSONDB.indexes[table][field][tableObject[field]] === undefined)
+            {
+                JSONDB.indexes[table][field][tableObject[field]] = [];
+            }
+
+            JSONDB.indexes[table][field][tableObject[field]].push(tableIndex);
+        }
+    }
 };

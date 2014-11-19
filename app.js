@@ -18,7 +18,9 @@ JSONDB.newTable("testTable2");
 JSONDB.createSchema("users",
 [
     ["name", "index"],
-    ["surname", ""]
+    ["surname", ""],
+    ["email", "index"],
+    ["username", "index"]
 ]);
 
 //createSchemas
@@ -45,6 +47,7 @@ JSONDB.createSchemas(
 //////////////////////////////////////////////
 //insert test
 JSONDB.insert("users", {"name":"Darren", "surname":"Leak", "test":"testField"});
+JSONDB.insert("users", {"name":"Darren", "surname":"test", "test":"testField"});
 
 //inserts test
 JSONDB.inserts("users",
@@ -64,8 +67,8 @@ JSONDB.insertsWithSchema(
         "testTable1"
     ],
     [
-        {"name":"Schemas1", "surname":"Leak", "test":"testField1"},
-        {"Field 1":"Schemas2", "Field 2":"Leak"},
+        {"name":"Schemas1", "surname":"Leak", "email":"testEmail", "username":"testUsername", "test":"test"},
+        {"Field_1":"Schemas2", "Field_2":"Leak"},
     ]
 );
 //////////////////////////////////////////////
@@ -77,7 +80,10 @@ JSONDB.updateTable("users", "update users");
 
 
 
+console.log("-------------------------------");
 console.log(JSONDB.data);
 console.log(JSONDB.tableIndex);
 console.log(JSONDB.tableSchema);
 console.log(JSONDB.indexedFields);
+console.log("-------------------------------");
+console.log(JSONDB.indexes);
