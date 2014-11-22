@@ -1,3 +1,9 @@
+////////////////////////////////////////////////
+//START - MAIN JSONDB OBJECT
+////////////////////////////////////////////////
+
+
+
 JSONDB =
 {
     data : {}, // the main db
@@ -6,6 +12,20 @@ JSONDB =
     indexedFields : {}, //table : field name
     indexes : {}//tableFieldName : {rest of normal tables
 };
+
+
+
+////////////////////////////////////////////////
+//END - MAIN JSONDB OBJECT
+////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////
+//START - TABLE AND SCHEMA CREATION
+////////////////////////////////////////////////
+
+
 
 /*
  * Function : creates a new table
@@ -46,23 +66,24 @@ JSONDB.createSchema = function (table, schema)
     var schemaArray = [];
     var schemaOptions = [];
 
-    for (value in schema)
-    {
-        schemaArray.push(schema[value][0]);
-
-        schemaOptions = schema[value][1].split("|");
-
-        if (schema[value][1] !== "" || schema[value][1] instanceof Array)
-        {
-            JSONDB.createIndexedFieldList(table, schema[value]);
-        }
-    }
-
-    schema = schemaArray;
-
     if (JSONDB.tableSchema[table] === undefined)
     {
+        for (field in schema)
+        {
+            schemaArray.push(schema[field][0]);
+        }
+
         JSONDB.tableSchema[table] = schemaArray;
+
+        for (field in schema)
+        {
+            schemaOptions = schema[field][1].split("|");
+
+            if (schema[field][1] !== "" || schema[field][1] instanceof Array)
+            {
+                JSONDB.createIndexedFieldList(table, schema[field]);
+            }
+        }
     }
     else
     {
@@ -83,6 +104,19 @@ JSONDB.createSchemas = function (tables, schemas)
     }
 };
 
+
+////////////////////////////////////////////////
+//END - TABLE AND SCHEMA CREATION
+////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////
+//START - DATABASE FUNCTIONS
+////////////////////////////////////////////////
+
+
+
 /*
  * Function : adds value to table
  * @param table - string : table name
@@ -90,6 +124,12 @@ JSONDB.createSchemas = function (tables, schemas)
  */
 JSONDB.insert = function (table, value)
 {
+    if (JSONDB.data[table] === undefined)
+    {
+        console.error("Cannot insert into table : " + table + " because table does no exist");
+        return false;
+    }
+
     var tableIndex = JSONDB.tableIndex[table];
 
     JSONDB.data[table][tableIndex] = value;
@@ -159,8 +199,9 @@ JSONDB.insertsWithSchema = function (tables, values)
 /*
  * Function : updates table name
  * @param table - string : name of the new table
+ * @param update - string : new name for the table
  */
-JSONDB.updateTable = function(table, update)
+JSONDB.updateTableName = function(table, update)
 {
     var db = JSONDB.data;
     var tableIndex = JSONDB.tableIndex;
@@ -183,6 +224,85 @@ JSONDB.updateTable = function(table, update)
     }
 };
 
+/*
+ * Function : updates field value
+ * @param table - string : name of the new table
+ * @param where - string : field name
+ * @param current - string : current field value
+ * @param update - string : new value for field for field
+ * @param options - array : (NOT YET IMPLEMENTED) options that can be added like
+ *                  - LIMIT
+ */
+JSONDB.update = function(table, where, current, update, options)
+{
+    if (JSONDB.data[table] === undefined)
+    {
+        console.error("Cannot update table : " + table + " because it does not exist");
+        return false;
+    }
+
+    var indexedFields;
+    var indexes = JSONDB.indexes[table];
+    var tbl = JSONDB.data[table];
+
+    //checks if the table has indexed fields
+    if (JSONDB.indexedFields[table] !== undefined)
+    {
+        if (JSONDB.indexedFields[table][where] !== undefined)
+        {
+            indexedFields = JSONDB.indexedFields[table];
+
+            for (field in indexedFields)
+            {
+                if (where == field)
+                {
+                    for (key in indexes[where][current])
+                    {
+                        if (tbl[key][where] == current)
+                        {
+                            tbl[key][where] = update;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (key in tbl)
+            {
+                if (tbl[key][where] == current)
+                {
+                    tbl[key][where] = update;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (key in tbl)
+        {
+            if (tbl[key][where] == current)
+            {
+                tbl[key][where] = update;
+            }
+        }
+    }
+
+};
+
+
+
+////////////////////////////////////////////////
+//END - DATABASE FUNCTIONS
+////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////
+//START - INDEXING FUNCTIONALITY
+////////////////////////////////////////////////
+
+
 
 /*
  * Function : stores the fields that are indexed per table
@@ -191,6 +311,18 @@ JSONDB.updateTable = function(table, update)
  */
 JSONDB.createIndexedFieldList = function (table, schema)
 {
+    if (JSONDB.data[table] === undefined)
+    {
+        console.error("Cannot create indexed fields because table : " + table + " does not exist");
+        return false;
+    }
+
+    if (JSONDB.tableSchema[table] === undefined)
+    {
+        console.error("A schema for table : '" + table + "' does not exist.");
+        return false;
+    }
+
     var schemaOptions = [];
 
     if (schema[1] !== "")
@@ -222,31 +354,40 @@ JSONDB.createIndexedFieldList = function (table, schema)
  */
 JSONDB.index = function (table, tableObject, tableIndex)
 {
-    var tableFields = JSONDB.indexedFields[table];
-
-    if (JSONDB.indexes[table] === undefined)
+    if (JSONDB.indexedFields[table] !== undefined)
     {
-        JSONDB.indexes[table] = {};
-    }
+        var tableFields = JSONDB.indexedFields[table];
 
-    for (field in tableFields)
-    {
-        if (JSONDB.indexes[table][field] === undefined)
+        if (JSONDB.indexes[table] === undefined)
         {
-            JSONDB.indexes[table][field] = {};
+            JSONDB.indexes[table] = {};
         }
-    }
 
-    for (field in tableObject)
-    {
-        if (tableFields[field] !== undefined)
+        for (field in tableFields)
         {
-            if (JSONDB.indexes[table][field][tableObject[field]] === undefined)
+            if (JSONDB.indexes[table][field] === undefined)
             {
-                JSONDB.indexes[table][field][tableObject[field]] = [];
+                JSONDB.indexes[table][field] = {};
             }
+        }
 
-            JSONDB.indexes[table][field][tableObject[field]].push(tableIndex);
+        for (field in tableObject)
+        {
+            if (tableFields[field] !== undefined)
+            {
+                if (JSONDB.indexes[table][field][tableObject[field]] === undefined)
+                {
+                    JSONDB.indexes[table][field][tableObject[field]] = [];
+                }
+
+                JSONDB.indexes[table][field][tableObject[field]].push(tableIndex);
+            }
         }
     }
 };
+
+
+
+////////////////////////////////////////////////
+//END - INDEXING FUNCTIONALITY
+////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 //////////////////////////////////////////////
 //Create new tables
 JSONDB.newTable("users");
+JSONDB.newTable("usersNoIndex");
 JSONDB.newTable("testTable1");
 JSONDB.newTable("testTable2");
 //////////////////////////////////////////////
@@ -21,6 +22,14 @@ JSONDB.createSchema("users",
     ["surname", ""],
     ["email", "index"],
     ["username", "index"]
+]);
+
+JSONDB.createSchema("usersNoIndex",
+[
+    ["name", ""],
+    ["surname", ""],
+    ["email", ""],
+    ["username", ""]
 ]);
 
 //createSchemas
@@ -46,8 +55,9 @@ JSONDB.createSchemas(
 
 //////////////////////////////////////////////
 //insert test
-JSONDB.insert("users", {"name":"Darren", "surname":"Leak", "test":"testField"});
-JSONDB.insert("users", {"name":"Darren", "surname":"test", "test":"testField"});
+JSONDB.insert("users", {"name":"Darren", "surname":"Leak", "test":"testField1"});
+JSONDB.insert("users", {"name":"Darren", "surname":"test", "test":"testField2"});
+JSONDB.insert("usersNoIndex", {"name":"Darren", "surname":"test", "test":"testField2"});
 
 //inserts test
 JSONDB.inserts("users",
@@ -67,7 +77,7 @@ JSONDB.insertsWithSchema(
         "testTable1"
     ],
     [
-        {"name":"Schemas1", "surname":"Leak", "email":"testEmail", "username":"testUsername", "test":"test"},
+        {"name":"Schemas1", "surname":"Leak1", "email":"testEmail", "username":"testUsername", "test":"test"},
         {"Field_1":"Schemas2", "Field_2":"Leak"},
     ]
 );
@@ -75,15 +85,23 @@ JSONDB.insertsWithSchema(
 
 
 //////////////////////////////////////////////
-JSONDB.updateTable("users", "update users");
+//update test
+JSONDB.update("users", "name", "Darren", "Nerrad");
+JSONDB.update("usersNoIndex", "surname", "test", "Leaky");
+
+//update table name test
+JSONDB.updateTableName("users", "update users");
 //////////////////////////////////////////////
 
 
 
-console.log("-------------------------------");
+console.log("Data");
 console.log(JSONDB.data);
+console.log("Table Index");
 console.log(JSONDB.tableIndex);
+console.log("Table Schema");
 console.log(JSONDB.tableSchema);
+console.log("Indexed Fields");
 console.log(JSONDB.indexedFields);
-console.log("-------------------------------");
+console.log("Indexes");
 console.log(JSONDB.indexes);
