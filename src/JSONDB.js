@@ -290,6 +290,8 @@ JSONDB.update = function(table, where, current, update, options)
 
 };
 
+//NEED TO ADD THE UPDATE FIELD FUNCTION
+
 
 
 ////////////////////////////////////////////////
