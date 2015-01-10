@@ -256,6 +256,8 @@ JSONDB.update = function(table, where, current, update, options)
             {
                 if (where == field)
                 {
+                    //REINDEX FIELD ON UPDATE
+                    //console.log(indexes[where][current] + " - Table : " + table + " | Current : " + current + " | Update : " + update);
                     for (key in indexes[where][current])
                     {
                         if (tbl[key][where] == current)
@@ -290,7 +292,58 @@ JSONDB.update = function(table, where, current, update, options)
 
 };
 
-//NEED TO ADD THE UPDATE FIELD FUNCTION
+/*
+ * Function : updates field value
+ * @param table - string array : name of the new table
+ * @param where - string array : field name
+ * @param current - string array : current field value
+ * @param update - string array : new value for field for field
+ * @param options - multidim array : - needs to be the last arg - (NOT YET IMPLEMENTED) options that can be added like
+ *                  - LIMIT
+ */
+JSONDB.updates = function (tables, wheres, currents, updates, options)
+{
+    var minLength;
+
+    for (index in arguments)
+    {
+        if (index == 0)
+        {
+            minLength = arguments[index].length;
+        }
+
+        if (options === undefined)
+        {
+            if (arguments[index].length < minLength && index < arguments.length)
+            {
+                console.error("Function : Updates(With no options) - Argument lengths are not the same");
+                return false;
+            }
+        }
+        else
+        {
+            if (arguments[index].length < minLength)
+            {
+                console.error("Function : Updates(With options) - Argument lengths are not the same");
+                return false;
+            }
+        }
+    }
+
+    for (index in tables)
+    {
+        if (options === undefined)
+        {
+            JSONDB.update(tables[index], wheres[index], currents[index], updates[index]);
+        }
+        else
+        {
+            JSONDB.update(tables[index], wheres[index], currents[index], updates[index], options[index]);
+        }
+    }
+};
+
+//NEED TO ADD THE UPDATE FIELD NAME
 
 
 
