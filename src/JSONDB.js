@@ -257,12 +257,29 @@ JSONDB.update = function(table, where, current, update, options)
                 if (where == field)
                 {
                     //REINDEX FIELD ON UPDATE
-                    //console.log(indexes[where][current] + " - Table : " + table + " | Current : " + current + " | Update : " + update);
+                    //#CURRENT
                     for (key in indexes[where][current])
                     {
                         if (tbl[key][where] == current)
                         {
                             tbl[key][where] = update;
+
+                            var indexKey = indexes[where][current].indexOf(parseInt(key));
+
+                            if(indexKey != -1)
+                            {
+                                indexes[where][current].splice(parseInt(indexKey), 1);
+                            }
+
+                            // var indexKey = indexes[where][current].indexOf(parseInt(key));
+
+                            // indexes[where][current].splice(parseInt(indexKey), 1);
+
+                            // //check if index for value is empty
+                            // if (indexes[where][current].length == 0)
+                            // {
+                            //     //remove
+                            // }
                         }
                     }
                 }
@@ -303,6 +320,7 @@ JSONDB.update = function(table, where, current, update, options)
  */
 JSONDB.updates = function (tables, wheres, currents, updates, options)
 {
+    console.log("-------------------------");
     var minLength;
 
     for (index in arguments)
@@ -330,6 +348,9 @@ JSONDB.updates = function (tables, wheres, currents, updates, options)
         }
     }
 
+    //update this so that it checks the options if they are empty or not rather than checking 
+    //if they are undefined
+    //#CURRENT
     for (index in tables)
     {
         if (options === undefined)

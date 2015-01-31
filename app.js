@@ -87,20 +87,19 @@ JSONDB.insertsWithSchema(
 //////////////////////////////////////////////
 //update test
 JSONDB.update("users", "name", "Darren", "Darren Updated");
-JSONDB.update("usersNoIndex", "surname", "test", "test Updated");
+//JSONDB.update("usersNoIndex", "surname", "test", "test Updated");
 
 //updates test
-JSONDB.updates(
-    ["users", "testTable1"],
-    ["name", "Field_1"],
-    ["Darren Updated", "Schemas 2"],
-    ["Darren Updated 1", "Schemas 2 Updated"]
-);
+// JSONDB.updates(
+//     ["users", "testTable1"],
+//     ["name", "Field_1"],
+//     ["Darren Updated", "Schemas 2"],
+//     ["Darren Updated 1", "Schemas 2 Updated"]
+// );
 
 //update table name test
-JSONDB.updateTableName("users", "update users");
+//JSONDB.updateTableName("users", "update users");
 //////////////////////////////////////////////
-
 
 
 console.log("Data");
@@ -111,5 +110,5 @@ console.log(JSONDB.data);
 // console.log(JSONDB.tableSchema);
 // console.log("Indexed Fields");
 // console.log(JSONDB.indexedFields);
-// console.log("Indexes");
-// console.log(JSONDB.indexes);
+console.log("Indexes");
+console.log(JSONDB.indexes);
